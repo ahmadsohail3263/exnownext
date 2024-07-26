@@ -1,13 +1,14 @@
 
 import ProfileCard from "@/components/ProfileCard";
-import SideBar from "@/components/sideBar";
+import SideBar from "@/components/SideBar";
+
 
 const MarketPlace = () => {
   return (
     <>
       <div className="grid lg:grid-cols-[300px,1fr]   ">
         <div className="hidden lg:block p-2">
-          <SideBar />
+          <SideBar/>
         </div>
         <div className="">
           <div className="grid grid-cols-1 xl:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-3 m-3">
