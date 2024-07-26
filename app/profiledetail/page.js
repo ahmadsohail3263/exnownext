@@ -141,7 +141,7 @@ const ProfileDetail = () => {
               <div className="m-4">
                
              
-              <Navigation label="Book Now" link="http://localhost:3000/bookappointment?" />
+              <Navigation label="Book Now" link="/bookappointment" />
               
               </div>
       
