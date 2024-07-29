@@ -5,7 +5,7 @@ export default function Home() {
   return (
     
     
-      <div className="flex flex-grow justify-center items-center">
+      <div className="flex flex-grow justify-center items-center ">
         <div>
           <h2 className="text-3xl font-bold text-[#2C7B63]">
             Find an Expert Now

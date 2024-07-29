@@ -47,23 +47,29 @@ const Navbar = () => {
                   </div>
                   <ul className="MENU-a-MOBILE-OPEN flex flex-col items-center justify-between min-h-[250px]">
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <a href="/">Home</a>
+                      <Link href="/"  onClick={() => setIsNavOpen(false)}>Home</Link>
+                     
                     </li>
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <a href="#">About Us</a>
+                      <Link href="aboutus" onClick={() => setIsNavOpen(false)}>About Us</Link>
+                     
                     </li>
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <a href="#">Contact</a>
+                      <Link href="contactus" onClick={() => setIsNavOpen(false)}>Contact</Link>
+                    
                     </li>
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <a href="#">Contact</a>
+                      <Link href="marketplace" onClick={() => setIsNavOpen(false)}>marketplace</Link>
+                      
                     </li>
 
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <a href="/signup">Registration</a>
+                      <Link href="/signup" onClick={() => setIsNavOpen(false)}>Registration</Link>
+                      
                     </li>
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <a href="/login">Sign in</a>
+                      <Link href="/login"  onClick={() => setIsNavOpen(false)}>Sign in</Link>
+                      
                     </li>
                   </ul>
                 </div>
@@ -76,13 +82,13 @@ const Navbar = () => {
                   <Link href="/">Home</Link>
                 </li>
                 <li>
-                  <a href="#">About Us</a>
+                  <Link href="aboutus">About Us</Link>
                 </li>
                 <li>
-                  <a href="#">Contact</a>
+                  <Link href="contactus">Contact</Link>
                 </li>
                 <li>
-                  <a href="marketplace">Market Place</a>
+                  <Link href="marketplace">Market Place</Link>
                 </li>
                 <li>
                   <Link href="signup">Registration</Link>
