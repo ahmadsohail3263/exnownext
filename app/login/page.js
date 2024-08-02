@@ -48,7 +48,7 @@ const Login = () => {
             <Button type="submit" label="Login " />
           </form>
 
-          <p className="mt-2">Do not have an account? <Link href="/signup" className="text-[#2C7B63]">Sign up</Link></p>
+          <p className="mt-2">Do not have an account? <Link href="/signup" className="text-[#2C7B63] font-bold underline">Sign up</Link></p>
         </div>
       </div>
     </div>

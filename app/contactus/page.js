@@ -98,7 +98,7 @@ Message              </label>
                 name="bio"
               />
             </div>
-            <Button label ="submit"/>
+            <Button label ="Submit"/>
 
 
 

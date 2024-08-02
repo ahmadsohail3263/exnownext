@@ -47,29 +47,41 @@ const Navbar = () => {
                   </div>
                   <ul className="MENU-a-MOBILE-OPEN flex flex-col items-center justify-between min-h-[250px]">
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <Link href="/"  onClick={() => setIsNavOpen(false)}>Home</Link>
-                     
+                      <Link href="/" onClick={() => setIsNavOpen(false)}>
+                        Home
+                      </Link>
                     </li>
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <Link href="aboutus" onClick={() => setIsNavOpen(false)}>About Us</Link>
-                     
+                      <Link
+                        href="marketplace"
+                        onClick={() => setIsNavOpen(false)}
+                      >
+                        marketplace
+                      </Link>
                     </li>
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <Link href="contactus" onClick={() => setIsNavOpen(false)}>Contact</Link>
-                    
+                      <Link href="aboutus" onClick={() => setIsNavOpen(false)}>
+                        About Us
+                      </Link>
                     </li>
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <Link href="marketplace" onClick={() => setIsNavOpen(false)}>marketplace</Link>
-                      
+                      <Link
+                        href="contactus"
+                        onClick={() => setIsNavOpen(false)}
+                      >
+                        Contact
+                      </Link>
                     </li>
 
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <Link href="/signup" onClick={() => setIsNavOpen(false)}>Registration</Link>
-                      
+                      <Link href="/signup" onClick={() => setIsNavOpen(false)}>
+                        Registration
+                      </Link>
                     </li>
                     <li className="border-b border-gray-400 my-8 uppercase">
-                      <Link href="/login"  onClick={() => setIsNavOpen(false)}>Sign in</Link>
-                      
+                      <Link href="/login" onClick={() => setIsNavOpen(false)}>
+                        Sign in
+                      </Link>
                     </li>
                   </ul>
                 </div>
@@ -82,23 +94,25 @@ const Navbar = () => {
                   <Link href="/">Home</Link>
                 </li>
                 <li>
+                  <Link href="marketplace">Market Place</Link>
+                </li>
+
+                <li>
                   <Link href="aboutus">About Us</Link>
                 </li>
                 <li>
                   <Link href="contactus">Contact</Link>
                 </li>
-                <li>
-                  <Link href="marketplace">Market Place</Link>
-                </li>
-                <li>
+                {/* <li>
                   <Link href="signup">Registration</Link>
-                </li>
+                </li> */}
+
                 <li>
                   <Link
                     href="/login"
                     className="block bg-[#2C7B63] rounded-lg text-white text-[20px] leading-[30px] font-medium px-[40px] py-[12px]"
                   >
-                    Sign in
+                    Login
                   </Link>
                 </li>
               </ul>
