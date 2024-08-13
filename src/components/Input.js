@@ -2,7 +2,7 @@ const Input = (props) => {
   const title = props.title;
 
   return (
-    <div className="relative z-0 w-full mb-6 group">
+    <div className="relative z-0 w-full mb-5 group">
       <label className={`block text-sm font-medium text-gray-700`}>
         {title}
       </label>
