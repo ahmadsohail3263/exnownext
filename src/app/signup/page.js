@@ -1,416 +1,595 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
-import Select from "@/src/components/Select";
+import { useEffect } from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useUser } from "@/src/context";
+import { parseISO, format, isValid } from "date-fns";
 
-const SignUp = () => {
-  
-  const [form, setForm] = useState({
-    userType: "Standard",
-    currentStudent: false,
-    phoneNumber: "",
-    bio: "",
-    interests: "",
-    workExperience: [],
-    education: [],
-    expertise: {
-      certifications: [],
-      credentials: [],
-      other: "",
-    },
-    scheduling: {
-      availabilityOptions: [
-        {
-          day: "Monday",
-          duration: 60,
-          end: "17:00",
-          start: "09:00",
+const MyForm = () => {
+  const { createUser } = useUser();
+  const formatDate = (date) => {
+    if (!date) {
+      return ""; // If the date is an empty string, return an empty string
+    }
+    const parsedDate = new Date(date);
+    if (isValid(parsedDate)) {
+      return format(parsedDate, "yyyy-MM-dd");
+    }
+    return ""; // Return an empty string if the date is invalid
+  };
+  const { control, handleSubmit, register, watch, reset, getValues, setValue } =
+    useForm({
+      defaultValues: {
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        userType: "Standarad",
+        expertise: {
+          consultant_experience: false,
+          certifications: [],
+          credentials: [],
+          other: "",
         },
-      ],
-    },
-    payment: {
-      hourlyRate: 0,
-    },
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    agreementToTerms: true,
-    isActive: true,
+        currentStudent: false,
+        phoneNumber: "",
+        bio: "",
+        interests: "",
+        workExperience: [
+          {
+            company_name: "",
+            role: {
+              title: "",
+              start_date: "",
+              end_date: "",
+              department: "",
+              responsibilities: [],
+              skills: [],
+            },
+          },
+        ],
+        education: [
+          {
+            school_name: "",
+            degree: "",
+            major: "",
+            minor: "",
+            relevant_coursework: [],
+            start_date: "",
+            end_date: "",
+          },
+        ],
+        scheduling: {
+          availabilityOptions: [
+            {
+              day: "",
+              duration: "",
+              end: "",
+              start: "",
+            },
+          ],
+        },
+        payment: {
+          hourlyRate: 0,
+        },
+        agreementToTerms: true,
+        isActive: true,
+      },
+    });
+
+  useEffect(() => {
+    // Set default values using reset
+    reset({
+      userType: "Standard", // Default value for userType
+    });
+  }, [reset]);
+
+  const {
+    fields: workFields,
+    append: appendWork,
+    remove: removeWork,
+  } = useFieldArray({
+    control,
+    name: "workExperience",
   });
 
-  console.log(form);
+  const {
+    fields: educationFields,
+    append: appendEducation,
+    remove: removeEducation,
+  } = useFieldArray({
+    control,
+    name: "education",
+  });
 
-  const { createUser } = useUser();
+  const {
+    fields: availabilityFields,
+    append: appendAvailability,
+    remove: removeAvailability,
+  } = useFieldArray({
+    control,
+    name: "scheduling.availabilityOptions",
+  });
+  const calculateDuration = (start, end) => {
+    const startTime = new Date(`1970-01-01T${start}:00`);
+    const endTime = new Date(`1970-01-01T${end}:00`);
+    const diff = (endTime - startTime) / 60000; // Difference in minutes
 
-  const taskStatus = useMemo(
-    () => [
-      {
-        id: 0,
-        value: "No",
-      },
-      {
-        id: 1,
-        value: "Yes",
-      },
-    ],
-    []
-  );
-
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    if (type === "checkbox") {
-      setForm((prevForm) => ({
-        ...prevForm,
-        [name]: checked,
-      }));
-    } else if (name.includes(".")) {
-      const [parent, child] = name.split(".");
-      setForm((prevForm) => ({
-        ...prevForm,
-        [parent]: {
-          ...prevForm[parent],
-          [child]: value,
-        },
-      }));
-    } else {
-      setForm((prevForm) => ({
-        ...prevForm,
-        [name]: value,
-      }));
-    }
+    return diff > 0 ? diff : 0; // Return 0 if the duration is negative
   };
 
-  const addSpecialty = (e) => {
-    const { name, value } = e.target;
-    if (e.key === "Enter" && value.trim() !== "") {
-      e.preventDefault();
-      if (name === "certifications" || name === "credentials") {
-        setForm((prevForm) => ({
-          ...prevForm,
-          expertise: {
-            ...prevForm.expertise,
-            [name]: [...prevForm.expertise[name], value.trim()],
-          },
-        }));
-      } else {
-        setForm((prevForm) => ({
-          ...prevForm,
-          [name]: [...prevForm[name], value.trim()],
-        }));
-      }
-      e.target.value = "";
-    }
-  };
-
-  const deleteItem = (listName, index) => {
-    if (listName === "certifications" || listName === "credentials") {
-      const updatedList = form.expertise[listName].filter(
-        (_, idx) => idx !== index
-      );
-      setForm((prevForm) => ({
-        ...prevForm,
-        expertise: {
-          ...prevForm.expertise,
-          [listName]: updatedList,
-        },
-      }));
-    } else {
-      const updatedList = form[listName].filter((_, idx) => idx !== index);
-      setForm({ ...form, [listName]: updatedList });
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(form);
-    createUser(form);
-  };
-
-  const createInputField = (label, field, items) => {
-    return (
-      <>
-        <label className="block text-sm font-medium text-gray-700">
-          {label}
-        </label>
-        <input
-          type="text"
-          name={field}
-          onKeyDown={addSpecialty}
-          placeholder={`Type ${label.toLowerCase()} and press Enter`}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm"
-        />
-        <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-3">
-          {items.map((item, index) => (
-            <li
-              key={`${field}-${index}`}
-              className="flex justify-between items-center p-2 bg-gray-100 rounded-md"
-            >
-              <span>{item}</span>
-              <button
-                onClick={() => deleteItem(field, index)}
-                className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded block"
-              >
-                &#x274C;
-              </button>
-            </li>
-          ))}
-        </ul>
-      </>
-    );
+  const onSubmit = (data) => {
+    console.log("Form Data:", data);
+    createUser(data);
   };
 
   return (
-    <>
-      <div className="container max-w-4xl mx-auto p-10 bg-white my-10 rounded-lg">
-        <div className="">
-          <h2 className="text-[30px] sm:text-[35px] font-semibold leading-[52.5px] tracking-tight text-black my-5">
-            Create an Account
-          </h2>
-          <p>Complete the form below to sign up for our membership service.</p>
-          <form onSubmit={handleSubmit} className="">
-            <div className="sm:grid sm:grid-cols-2 gap-x-3 my-5">
-              <Input
-                type="text"
-                name="firstName"
-                title="First Name"
-                value={form.firstName}
-                onChange={handleChange}
-              />
-              <Input
-                type="text"
-                name="lastName"
-                title="Last Name"
-                value={form.lastName}
-                onChange={handleChange}
-              />
-              <Input
-                type="mail"
-                name="email"
-                title="Email"
-                value={form.email}
-                onChange={handleChange}
-              />
-              <Input
-                type="text"
-                name="phoneNumber"
-                title="Phone Number"
-                value={form.phoneNumber}
-                onChange={handleChange}
-              />
-              <Input
-                type="password"
-                name="password"
-                title="Password"
-                value={form.password}
-                onChange={handleChange}
-              />
-              <Select
-                label={"Current Student"}
-                data={taskStatus}
-                name="currentStudent"
-                value={form.currentStudent}
-                onChange={handleChange}
-              />
-              <Input
-                type="datetime-local"
-                name="availabilityOptions"
-                title="Availability Options"
-                onChange={handleChange}
-              />
-              <Input
-                type="text"
-                name="payment.hourlyRate"
-                title="Payment Per Hour"
-                value={form.payment.hourlyRate}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                About Us
-              </label>
-              <textarea
-                rows={4}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm"
-                value={form.bio}
-                name="bio"
-              />
-            </div>
-            <div className="sm:grid sm:grid-cols-2 gap-x-3 my-5">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Education
-                </label>
-                <input
-                  type="text"
-                  name="education"
-                  placeholder="Type education and press Enter"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm"
-                  onKeyDown={addSpecialty}
-                />
-                <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-3">
-                  {form.education.map((item, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between items-center p-2 bg-gray-100 rounded-md"
-                    >
-                      <span>{item}</span>
-                      <button
-                        type="button"
-                        onClick={() => deleteItem("education", index)}
-                        className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
-                      >
-                        &#x274C;
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+    <div className="px-10">
+      <h1 className="text-2xl font-bold my-5 text-center">Register Form</h1>
 
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <h2 className="text-xl font-bold ">Personal Information</h2>
+        <div className="sm:grid grid-cols-2 gap-x-4">
+          <Input {...register("firstName")} title="First Name" />
+          <Input {...register("lastName")} title="Last Name" />
+          <Input {...register("email")} type="email" title="Email" />
+          <div>
+            <label className={`block text-sm font-medium text-gray-700`}>
+              Current Student
+            </label>
+            <select
+              {...register("currentStudent")}
+              className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm`}
+            >
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+          <Input {...register("phoneNumber")} title="Phone Number" />
+          <Input {...register("password")} type="password" title="Password" />
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Bio
+            </label>
+            <textarea
+              row={1}
+              className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm`}
+              {...register("bio")}
+              title="Bio"
+            />
+          </div>
+          <Input {...register("interests")} title="Interests" />
+          <Controller
+            name="payment.hourlyRate"
+            control={control}
+            render={({ field }) => (
+              <Input type="number" {...field} title="Hourly Rate" />
+            )}
+          />
+          <div>
+            <label className={`block text-sm font-medium text-gray-700`}>
+              User Type
+            </label>
+            <select
+              {...register("userType")}
+              className={` block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm`}
+            >
+              <option value="Expert">Expert</option>
+              <option value="Standard">Standard</option>
+              <option value="Both">Both</option>
+            </select>
+          </div>
+        </div>
+        {/* <Input
+        {...register("userType")}
+        title="User Type"
+      /> */}
+        <h2 className="text-xl font-bold mt-4">Expertise</h2>
+        <div className="sm:grid grid-cols-2 gap-x-4">
+          <div>
+            <label className={`block text-sm font-medium text-gray-700`}>
+              Consultant Experience
+            </label>
+            <select
+              {...register("expertise.consultant_experience")}
+              className={` mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm`}
+            >
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+          <Controller
+            name="expertise.certifications"
+            control={control}
+            render={({ field }) => (
               <Input
-                type="text"
-                name="interests"
-                title="Interests"
-                value={form.interests}
-                onChange={handleChange}
-              />
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Work Experience
-                </label>
-                <input
-                  type="text"
-                  name="workExperience"
-                  placeholder="Type work experience and press Enter"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm"
-                  onKeyDown={addSpecialty}
-                />
-                <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-3">
-                  {form.workExperience.map((item, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between items-center p-2 bg-gray-100 rounded-md"
-                    >
-                      <span>{item}</span>
-                      <button
-                        type="
-
-button"
-                        onClick={() => deleteItem("workExperience", index)}
-                        className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
-                      >
-                        &#x274C;
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <h3 className="text-xl font-semibold mt-4">Expertise</h3>
-            <div className="sm:grid grid-cols-3 md:grid-cols-3 gap-4 my-5">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Certifications
-                </label>
-                <input
-                  type="text"
-                  name="certifications"
-                  placeholder="Type certifications and press Enter"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm"
-                  onKeyDown={addSpecialty}
-                />
-                <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-3">
-                  {form.expertise.certifications.map((item, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between items-center p-2 bg-gray-100 rounded-md"
-                    >
-                      <span>{item}</span>
-                      <button
-                        type="button"
-                        onClick={() => deleteItem("certifications", index)}
-                        className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
-                      >
-                        &#x274C;
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Credentials
-                </label>
-                <input
-                  type="text"
-                  name="credentials"
-                  placeholder="Type credentials and press Enter"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm"
-                  onKeyDown={addSpecialty}
-                />
-                <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-3">
-                  {form.expertise.credentials.map((item, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between items-center p-2 bg-gray-100 rounded-md"
-                    >
-                      <span>{item}</span>
-                      <button
-                        type="button"
-                        onClick={() => deleteItem("credentials", index)}
-                        className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
-                      >
-                        &#x274C;
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <Input
-                type="text"
-                name="expertise.other"
-                title="Other"
-                value={form.expertise.other}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                id="agreementToTerms"
-                name="agreementToTerms"
-                checked={form.agreementToTerms}
+                {...field}
+                title="Certifications"
+                placeholder="(comma separated)"
                 onChange={(e) =>
-                  setForm({ ...form, agreementToTerms: e.target.checked })
+                  setValue(
+                    "expertise.certifications",
+                    e.target.value.split(",").map((item) => item.trim())
+                  )
                 }
               />
-              <label
-                htmlFor="agreementToTerms"
-                className="text-sm font-medium text-gray-700"
-              >
-                Accept Our Terms and Conditions
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              className="mt-4 px-4 py-2 bg-[#2C7B63] text-white rounded-md"
-            >
-              Submit
-            </button>
-          </form>
+            )}
+          />
+          <Controller
+            name="expertise.credentials"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                title="Credentials"
+                placeholder="(comma separated)"
+                onChange={(e) =>
+                  setValue(
+                    "expertise.credentials",
+                    e.target.value.split(",").map((item) => item.trim())
+                  )
+                }
+              />
+            )}
+          />
+          <Input {...register("expertise.other")} title="Other Expertise" />
         </div>
-      </div>
-    </>
+
+        <h2 className="text-xl font-bold">Work Experience</h2>
+        {workFields.map((field, index) => (
+          <div key={field.id}>
+            <div className="sm:grid grid-cols-3 gap-x-4">
+              <Controller
+                name={`workExperience.${index}.company_name`}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    placeholder="Company Name"
+                    title="Company Name"
+                  />
+                )}
+              />
+              <Controller
+                name={`workExperience.${index}.role.title`}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    placeholder="Role Title"
+                    title="Job Title"
+                  />
+                )}
+              />
+              <Controller
+                name={`workExperience.${index}.role.start_date`}
+                control={control}
+                render={({ field: { value, onChange, ...rest } }) => (
+                  <Input
+                    type="date"
+                    {...rest}
+                    value={formatDate(value)}
+                    title="Start Date"
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const dateWithTime = `${inputValue}T00:00:00`; // Add default time
+                      onChange(dateWithTime); // Set the value with the appended time
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                name={`workExperience.${index}.role.end_date`}
+                control={control}
+                render={({ field: { value, onChange, ...rest } }) => (
+                  <Input
+                    type="date"
+                    {...rest}
+                    value={formatDate(value)}
+                    title="End Date"
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const dateWithTime = `${inputValue}T00:00:00`; // Add default time
+                      onChange(dateWithTime); // Set the value with the appended time
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                name={`workExperience.${index}.role.department`}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    placeholder="Department"
+                    title="Department"
+                  />
+                )}
+              />
+              <Controller
+                name={`workExperience.${index}.role.responsibilities`}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    title="Responsibilities"
+                    placeholder="(comma separated)"
+                    onChange={(e) =>
+                      setValue(
+                        `workExperience.${index}.role.responsibilities`,
+                        e.target.value.split(",").map((item) => item.trim())
+                      )
+                    }
+                  />
+                )}
+              />
+
+              <Controller
+                name={`workExperience.${index}.role.skills`}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    title="Skills"
+                    placeholder="(comma separated)"
+                    onChange={(e) =>
+                      setValue(
+                        `workExperience.${index}.role.skills`,
+                        e.target.value.split(",").map((item) => item.trim())
+                      )
+                    }
+                  />
+                )}
+              />
+            </div>
+            <div className="flex gap-x-4">
+              <Button
+                type="button"
+                onClick={() => removeWork(index)}
+                label="Remove Experience"
+              />
+              <Button
+                type="button"
+                onClick={() =>
+                  appendWork({
+                    company_name: "",
+                    role: {
+                      title: "",
+                      start_date: "",
+                      end_date: "",
+                      department: "",
+                      responsibilities: [],
+                      skills: [],
+                    },
+                  })
+                }
+                label="Add Work Experience"
+              />
+            </div>
+          </div>
+        ))}
+        <h2 className="text-xl font-bold mt-4">Education</h2>
+        {educationFields.map((field, index) => (
+          <div key={field.id}>
+            <div className="sm:grid grid-cols-3 gap-x-4">
+              <Controller
+                name={`education.${index}.school_name`}
+                control={control}
+                render={({ field }) => <Input {...field} title="School Name" />}
+              />
+              <Controller
+                name={`education.${index}.degree`}
+                control={control}
+                render={({ field }) => <Input {...field} title="Degree" />}
+              />
+              <Controller
+                name={`education.${index}.major`}
+                control={control}
+                render={({ field }) => <Input {...field} title="Major" />}
+              />
+              <Controller
+                name={`education.${index}.minor`}
+                control={control}
+                render={({ field }) => <Input {...field} title="Minor" />}
+              />
+              <Controller
+                name={`education.${index}.relevant_coursework`}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    title="Relevant Coursework"
+                    placeholder="(comma separated)"
+                    onChange={(e) =>
+                      setValue(
+                        `education.${index}.relevant_coursework`,
+                        e.target.value.split(",").map((item) => item.trim())
+                      )
+                    }
+                  />
+                )}
+              />
+              <Controller
+                name={`education.${index}.start_date`}
+                control={control}
+                render={({ field: { value, onChange, ...rest } }) => (
+                  <Input
+                    type="date"
+                    {...rest}
+                    value={formatDate(value)}
+                    title="End Date"
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const dateWithTime = `${inputValue}T00:00:00`; // Add default time
+                      onChange(dateWithTime); // Set the value with the appended time
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                name={`education.${index}.end_date`}
+                control={control}
+                render={({ field: { value, onChange, ...rest } }) => (
+                  <Input
+                    type="date"
+                    {...rest}
+                    value={formatDate(value)}
+                    title="End Date"
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const dateWithTime = `${inputValue}T00:00:00`; // Add default time
+                      onChange(dateWithTime); // Set the value with the appended time
+                    }}
+                  />
+                )}
+              />
+            </div>
+            <div className="flex gap-x-4">
+              <Button
+                type="button"
+                onClick={() => removeEducation(index)}
+                label="Remove Education"
+              />
+              <Button
+                type="button"
+                onClick={() =>
+                  appendEducation({
+                    school_name: "",
+                    degree: "",
+                    major: "",
+                    minor: "",
+                    relevant_coursework: [],
+                    start_date: "",
+                    end_date: "",
+                  })
+                }
+                label="Add Education"
+              />
+            </div>
+          </div>
+        ))}
+        <h2 className="text-xl font-bold mt-4">Scheduling</h2>
+        {availabilityFields.map((field, index) => (
+          <div key={field.id}>
+            <div className="sm:grid grid-cols-4 gap-x-4">
+              <div>
+                <label>Day</label>
+                <select
+                  {...register(`scheduling.availabilityOptions.${index}.day`)}
+                  className={` block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#2C7B63] focus:border-[#2C7B63] sm:text-sm`}
+                >
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                  <option value="Saturday">Saturday</option>
+                  <option value="Sunday">Sunday</option>
+                </select>
+              </div>
+              <Controller
+                name={`scheduling.availabilityOptions.${index}.start`}
+                control={control}
+                render={({ field: { value, onChange, ...rest } }) => (
+                  <Input
+                    type="time"
+                    {...rest}
+                    value={value}
+                    title="Start Time"
+                    onChange={(e) => {
+                      const startTime = e.target.value;
+                      onChange(startTime); // Set start time
+
+                      const endTime = getValues(
+                        `scheduling.availabilityOptions.${index}.end`
+                      );
+                      if (endTime) {
+                        const duration = calculateDuration(startTime, endTime);
+                        setValue(
+                          `scheduling.availabilityOptions.${index}.duration`,
+                          duration
+                        );
+                      }
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                name={`scheduling.availabilityOptions.${index}.end`}
+                control={control}
+                render={({ field: { value, onChange, ...rest } }) => (
+                  <Input
+                    type="time"
+                    {...rest}
+                    value={value}
+                    title="End Time"
+                    onChange={(e) => {
+                      const endTime = e.target.value;
+                      onChange(endTime); // Set end time
+
+                      const startTime = getValues(
+                        `scheduling.availabilityOptions.${index}.start`
+                      );
+                      if (startTime) {
+                        const duration = calculateDuration(startTime, endTime);
+                        setValue(
+                          `scheduling.availabilityOptions.${index}.duration`,
+                          duration
+                        );
+                      }
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                name={`scheduling.availabilityOptions.${index}.duration`}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    {...field}
+                    title="Duration (minutes)"
+                    readOnly
+                  />
+                )}
+              />
+            </div>
+            <div className="flex gap-x-4">
+              <Button
+                type="button"
+                onClick={() => removeAvailability(index)}
+                label="Remove Availability"
+              />
+              <Button
+                type="button"
+                onClick={() =>
+                  appendAvailability({
+                    day: "",
+                    start: "",
+                    end: "",
+                    duration: "",
+                  })
+                }
+                label="Add Availability"
+              />
+            </div>
+          </div>
+        ))}
+
+        <div className="flex gap-x-4 mt-4">
+          <Controller
+            name="agreementToTerms"
+            control={control}
+            render={({ field }) => <input type="checkbox" {...field} />}
+          />
+          <label>Agree to Terms and Conditions</label>
+        </div>
+
+        <Button type="submit" label="Submit" />
+      </form>
+    </div>
   );
 };
 
-export default SignUp;
+export default MyForm;

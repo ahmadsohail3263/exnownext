@@ -3,13 +3,17 @@ import { useState } from "react";
 import Input from "@/src/components/Input";
 import Button from "@/src/components/Button";
 import Link from "next/link";
+import { useAuth } from "@/src/context/index";
 
-const Login = () => {
+
+const LoginForm = () => {
+  const { Login } = useAuth();
   const [form, setForm] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
+  
 
 
   const handleChange = (e) => {
@@ -17,9 +21,12 @@ const Login = () => {
     const { name, value } = e.target;
     setForm((prevForm) => ({ ...prevForm, [name]: value }));
   };
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    console.log(form)
+      console.log(form)
+      await Login(form);
+ 
   };
 
   return (
@@ -35,7 +42,7 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <Input
               type="email"
-              name="email"
+              name="username"
               title="Email"
               onChange={handleChange}
             />
@@ -55,4 +62,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginForm;

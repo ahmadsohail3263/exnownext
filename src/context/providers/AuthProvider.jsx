@@ -21,11 +21,16 @@ export function AuthProvider({ children }) {
   /*---------------------Functions Related to Auth---------------------------*/
 
   const Login = async (userForm) => {
-    create(LOGIN_API, null, userForm)
+    const formData = new FormData();
+    Object.keys(userForm).forEach((key) => {
+      formData.append(key, userForm[key]);
+    });
+    create(LOGIN_API, null, formData)
       .then((res) => {
         setTokenAndDecodeUser(res.access_token);
       })
       .catch((err) => {
+      
         handleError(err.message);
       });
   };
@@ -48,31 +53,6 @@ export function AuthProvider({ children }) {
     setUserDetail(null);
     sessionStorage.removeItem("token");
   };
-
-  // If user refresh the page then get his token and set the token and user state
-  useEffect(() => {
-    const storedToken = sessionStorage.getItem("token");
-    try {
-      if (storedToken) {
-        setTokenAndDecodeUser(storedToken);
-      } else {
-        clearToken();
-      }
-    } catch (err) {
-      clearToken();
-    }
-  }, [token, setTokenAndDecodeUser]);
-
-  // Inside your AuthProvider component
-  useEffect(() => {
-    if (userDetail) {
-      if (userDetail.role === "admin") {
-        router.push("");
-      } else {
-        router.push("/");
-      }
-    }
-  }, [userDetail]); // Listen for changes in userDetail
 
   return (
     <AuthContext.Provider value={{ token, clearToken, userDetail, Login }}>

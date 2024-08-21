@@ -23,8 +23,7 @@ export function UserProvider({ children }) {
   const createUser = async (userForm) => {
     try {
       const API = Users_API;
-
-      await create(API, userForm);
+      await create(API, "POST",userForm);
       handleSuccess("Created Successfully");
       router.push("/login");
     } catch (error) {

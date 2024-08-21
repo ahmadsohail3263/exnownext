@@ -4,7 +4,9 @@ import Navbar from "@/src/components/Navbar";
 import "./globals.css";
 import { usePathname } from "next/navigation";
 import DashNavBar from "@/src/components/dashboard/DashNavBar";
-import { UserProvider } from "../context/providers/userProvider";
+import AppProviders from "../context/providers/AppProvider";
+
+
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,10 +23,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <div className="flex flex-col min-h-screen">
-          <UserProvider>
+          
             {pathname.startsWith("/dashboard") ? <DashNavBar /> : <Navbar />}
-            {children}
-            </UserProvider>
+            <AppProviders>{children}</AppProviders>
         </div>
       </body>
     </html>

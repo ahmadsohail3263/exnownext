@@ -1,6 +1,7 @@
+"use client"
 import { useContext } from "react";
-import { AuthContext } from "./Providers/AuthProvider";
-import { UserContext } from "./providers/userProvider";
+import { AuthContext } from "./providers/AuthProvider";
+import { UserContext } from "./providers/UserProvider";
 
 // Export all the Contexts
 
