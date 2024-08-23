@@ -81,6 +81,6 @@ export const CreatefileUpload = async (API, Token, form) => {
     return response.data;
   } catch (err) {
     console.log(err)
-    throw  err.response.data;
+    throw  err.response.data
   }
 };
