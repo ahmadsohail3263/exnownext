@@ -1,22 +1,22 @@
 import axios from "axios";
 import { apiRequest } from "../API/ApiRequest";
-import { handleError } from "../Handling/handleError";
-import { handleSuccess } from "../Handling/handleSuccess";
+// import { handleError } from "../Handling/handleError";
+// import { handleSuccess } from "../Handling/handleSuccess";
 
 export const fetch = async (API, Token) => {
   try {
     return await apiRequest(API, "GET", Token);
   } catch (err) {
-    handleError(err);
+    // handleError(err);
   }
 };
 
 export const remove = async (API, Token) => {
   try {
     const res = await apiRequest(API, "DELETE", Token);
-    handleSuccess("Deleted Successfully");
+    // handleSuccess("Deleted Successfully");
   } catch (err) {
-    handleError(err);
+    // handleError(err);
   }
 };
 
@@ -24,7 +24,7 @@ export const create = async (API, Token, form) => {
   try {
     const res = await apiRequest(API, "POST", Token, form);
     if (!Token) {
-      handleSuccess("Log in Successfully");
+      // handleSuccess("Log in Successfully");
     }
     return res;
   } catch (err) {
