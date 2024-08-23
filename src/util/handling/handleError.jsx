@@ -1,3 +1,4 @@
+"use client"
 import Alert from "@/src/components/Alert";
 
 export const handleError = (err) => {
