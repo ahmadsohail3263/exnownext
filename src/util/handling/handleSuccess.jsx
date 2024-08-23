@@ -1,5 +1,4 @@
-"use client"
 import Alert from "@/src/components/Alert";
-export const handleSuccess = (res) => {
+export default handleSuccess = (res) => {
   Alert({ icon: "success", title: res });
 };

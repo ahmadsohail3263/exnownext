@@ -1,5 +1,7 @@
+"use client"
 import axios from "axios";
 import { apiRequest } from "../API/ApiRequest";
+import handleError from "../handling/handleError";
 // import { handleError } from "../Handling/handleError";
 // import { handleSuccess } from "../Handling/handleSuccess";
 
@@ -7,7 +9,7 @@ export const fetch = async (API, Token) => {
   try {
     return await apiRequest(API, "GET", Token);
   } catch (err) {
-    // handleError(err);
+    handleError(err);
   }
 };
 
